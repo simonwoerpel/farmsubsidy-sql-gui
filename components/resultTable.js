@@ -11,6 +11,8 @@ export default function ResultTable({ data }) {
       columns={columns}
       data={data.slice(1)}
       dense
+      theme="dark"
+      paginationPerPage={25}
       pagination
       paginationRowsPerPageOptions={[10, 25, 50, 100]}
     />

@@ -8,7 +8,7 @@ import ResultTable from "../components/resultTable.js";
 import DownloadButton from "../components/downloadButton.js";
 import ErrorAlert from "../components/error.js";
 
-const DEFAULT_QUERY = "SELECT * FROM farmsubsidy LIMIT 10";
+const DEFAULT_QUERY = "SELECT * FROM farmsubsidy LIMIT 25";
 
 async function api(query) {
   const res = await fetch(
@@ -55,6 +55,7 @@ export default function Index({ initialData }) {
         <Form.Group className="mb-3" controlId="formSqlQuery">
           <Form.Label>Query</Form.Label>
           <Form.Control
+            className="fsql-textarea"
             as="textarea"
             rows={3}
             placeholder="Enter sql query..."
@@ -64,7 +65,7 @@ export default function Index({ initialData }) {
         </Form.Group>
         <Button
           disabled={isLoading || value === query}
-          variant="primary"
+          variant="success"
           onClick={() => setQuery(value)}
         >
           {isLoading && (

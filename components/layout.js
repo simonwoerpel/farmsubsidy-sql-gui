@@ -56,10 +56,6 @@ export default function Layout({ children }) {
         <meta name="description" content={DEFAULT_DESCRIPTION} />
         <meta name="og:site" content="farmsubsidy.org" />
         <meta property="og:url" content={url} />
-        <meta
-          name="google-site-verification"
-          content="Ky0DwP0Po8pm91bBwCkbbNt1Qf6FLXut_7Kd1jvSGFc"
-        />
       </Head>
       <Container fluid as="main" className="fsql-container">
         <Row>
