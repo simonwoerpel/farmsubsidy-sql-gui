@@ -8,23 +8,11 @@ import Layout from "../components/layout.js";
 import ResultTable from "../components/resultTable.js";
 import DownloadButton from "../components/downloadButton.js";
 import ErrorAlert from "../components/error.js";
+import { clientApi, serverApi } from "../lib/api.js";
 import styles from "./index.module.scss";
 
-const BASE_URL = process.env.BASE_URL || "";
 const DEFAULT_QUERY = "SELECT * FROM farmsubsidy LIMIT 25";
 const DEFAULT_URL = `/?query=${DEFAULT_QUERY}`;
-
-async function api(query) {
-  const res = await fetch(`${BASE_URL}/api/query?query=${query}`);
-  if (res.ok) {
-    const data = await res.text();
-    return data.trim();
-  }
-  if (res.status >= 400 && res.status < 600) {
-    const { error } = await res.json();
-    throw new Error(error);
-  }
-}
 
 export default function Index({ initialData }) {
   const router = useRouter();
@@ -47,7 +35,7 @@ export default function Index({ initialData }) {
     setError();
     setLoading(true);
     setData([]);
-    api(query)
+    clientApi(query)
       .then((res) => {
         setData(Papa.parse(res).data);
         setLoading(false);
@@ -68,7 +56,11 @@ export default function Index({ initialData }) {
     <Layout>
       <h1>Farmsubsidy.org data SQL browser</h1>
       <p>Execute raw queries against the farmsubsidy database.</p>
-      <p><a href="https://farmsubsidy.org/data">More information about the data</a></p>
+      <p>
+        <a href="https://farmsubsidy.org/data">
+          More information about the data
+        </a>
+      </p>
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="formSqlQuery">
           <Form.Label>Query</Form.Label>
@@ -115,7 +107,7 @@ export default function Index({ initialData }) {
 }
 
 export async function getStaticProps() {
-  const data = await api(DEFAULT_QUERY);
+  const data = await serverApi(DEFAULT_QUERY);
   const initialData = Papa.parse(data).data;
   return {
     props: { initialData },
