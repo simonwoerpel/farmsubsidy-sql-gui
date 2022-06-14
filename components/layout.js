@@ -3,11 +3,12 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { useRouter } from "next/router";
+import styles from "./layout.module.scss";
 
 const BASE_URL = process.env.BASE_URL || "https://sql.farmsubsidy.org";
 const DEFAULT_DESCRIPTION =
   "FarmSubsidy shows who gets subsidies under the European Common Agricultural Policy";
-const TITLE = "Farmsubsidy SQL explorer | farmsubsidy.org"
+const TITLE = "Farmsubsidy SQL explorer & CSV download | farmsubsidy.org";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function Layout({ children }) {
         <meta name="og:site" content="farmsubsidy.org" />
         <meta property="og:url" content={url} />
       </Head>
-      <Container fluid as="main" className="fsql-container">
+      <Container fluid as="main" className={styles.container}>
         <Row>
           <Col>{children}</Col>
         </Row>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import Papa from "papaparse";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -7,16 +8,17 @@ import Layout from "../components/layout.js";
 import ResultTable from "../components/resultTable.js";
 import DownloadButton from "../components/downloadButton.js";
 import ErrorAlert from "../components/error.js";
+import styles from "./index.module.scss";
 
+const BASE_URL = process.env.BASE_URL || "";
 const DEFAULT_QUERY = "SELECT * FROM farmsubsidy LIMIT 25";
+const DEFAULT_URL = `/?query=${DEFAULT_QUERY}`;
 
 async function api(query) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/sql?query=${query}`
-  );
+  const res = await fetch(`${BASE_URL}/api/query?query=${query}`);
   if (res.ok) {
-    const data = await res.text()
-    return data.trim()
+    const data = await res.text();
+    return data.trim();
   }
   if (res.status >= 400 && res.status < 600) {
     const { error } = await res.json();
@@ -25,12 +27,22 @@ async function api(query) {
 }
 
 export default function Index({ initialData }) {
-  const [value, setValue] = useState(DEFAULT_QUERY);
+  const router = useRouter();
+  const [query, setQuery] = useState(router.query.query || DEFAULT_QUERY);
+  const [value, setValue] = useState(query);
   const [error, setError] = useState();
-  const [query, setQuery] = useState(DEFAULT_QUERY);
   const [data, setData] = useState(initialData);
   const [isLoading, setLoading] = useState(false);
   const numRows = (data?.length || 1) - 1; // header row
+
+  // set query based on url param if any
+  useEffect(() => {
+    const urlQuery = router.query.query;
+    if (!!urlQuery) {
+      setQuery(urlQuery);
+    }
+  }, [router.query]);
+
   useEffect(() => {
     setError();
     setLoading(true);
@@ -41,32 +53,39 @@ export default function Index({ initialData }) {
         setLoading(false);
       })
       .catch(({ message }) => {
-        console.log(message);
         setLoading(false);
         setData([]);
         setError(message);
       });
   }, [query]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    router.push({ url: router.pathname, query: { query: value } });
+  };
+
   return (
     <Layout>
-      <h1>Farmsubsidy data SQL browser</h1>
+      <h1>Farmsubsidy.org data SQL browser</h1>
       <p>Execute raw queries against the farmsubsidy database.</p>
-      <Form>
+      <p><a href="https://farmsubsidy.org/data">More information about the data</a></p>
+      <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="formSqlQuery">
           <Form.Label>Query</Form.Label>
           <Form.Control
-            className="fsql-textarea"
+            className={styles.textarea}
             as="textarea"
             rows={3}
             placeholder="Enter sql query..."
             defaultValue={DEFAULT_QUERY}
+            value={value}
             onChange={(e) => setValue(e.target.value)}
           />
         </Form.Group>
         <Button
-          disabled={isLoading || value === query}
+          disabled={isLoading || query === value}
           variant="success"
-          onClick={() => setQuery(value)}
+          type="submit"
         >
           {isLoading && (
             <Spinner
@@ -81,16 +100,16 @@ export default function Index({ initialData }) {
         </Button>
         {numRows > 0 && <DownloadButton data={data} />}
       </Form>
-      <div className="fsql-results">
+      <div className={styles.results}>
         <h3>{numRows ? `${numRows} Results` : "Results"}</h3>
         {isLoading && (
           <Spinner animation="grow" size="sm" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
-          )}
-          {error && <ErrorAlert message={error} />}
-          {data.length > 0 && <ResultTable data={data} />}
-        </div>
+        )}
+        {error && <ErrorAlert message={error} defaultUrl={DEFAULT_URL} />}
+        {data.length > 0 && <ResultTable data={data} />}
+      </div>
     </Layout>
   );
 }

@@ -1,0 +1,16 @@
+.results {
+  padding-top: 40px;
+}
+
+.textarea {
+  background-color: var(--bs-gray-dark);
+  color: var(--bs-gray-400);
+  font-family: monospace;
+  outline: none;
+  margin-bottom: 20px;
+
+  &:focus {
+    background-color: var(--bs-gray-dark);
+    color: var(--bs-gray-400);
+  }
+}

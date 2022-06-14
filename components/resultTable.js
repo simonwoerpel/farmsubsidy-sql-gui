@@ -18,5 +18,3 @@ export default function ResultTable({ data }) {
     />
   );
 }
-      // pagination
-      // paginationRowsPerPageOptions={[10, 25, 50, 100]}
